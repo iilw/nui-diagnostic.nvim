@@ -39,7 +39,7 @@ local defaults = {
     events = { "BufLeave", "CursorMoved", "InsertEnter" }
   },
   keymaps = {
-    enabled = false,
+    enabled = true,
     next = "]d",
     prev = "[d",
     next_error = "]e",

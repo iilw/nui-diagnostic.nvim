@@ -42,12 +42,12 @@ local function setup_keymaps(opts)
     M.prev()
   end, { desc = "Prev diagnostic with code actions"})
 
-    vim.keymap.set("n", opts.keymaps.next_error, function ()
-    M.next()
+  vim.keymap.set("n", opts.keymaps.next_error, function ()
+    M.next({ severity = "ERROR" })
   end, { desc = "Next error diagnostic with code actions"})
 
   vim.keymap.set("n", opts.keymaps.prev, function ()
-    M.prev()
+    M.prev( { severity = "ERROR" })
   end, { desc = "Prev error diagnostic with code actions"})
 
 end
@@ -119,3 +119,5 @@ function M.prev(opts_or_count, severity)
     M.open({ severity = opts.severity })
   end, 50)
 end
+
+return M
