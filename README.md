@@ -2,6 +2,8 @@
 
 A small Neovim plugin that jumps between diagnostics and shows the current diagnostic together with available LSP code actions in `nui.nvim` popups.
 
+![nui-diagnostic-gif](https://github.com/user-attachments/assets/ba5e4cc7-7828-4486-89a8-646ca3710deb)
+
 ## Features
 
 - Jump to next/previous diagnostics and immediately show context.
