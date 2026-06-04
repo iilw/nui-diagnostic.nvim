@@ -149,6 +149,25 @@ function M.open(opts)
     table.insert(state.popups, popup)
   end
 
+  local keys = plugin_opts.code_actions.keys or {}
+  for idx, action_tuple in ipairs(actions) do
+    local key = keys[idx]
+    if not key then
+      break
+    end
+
+    vim.keymap.set("n", key, function ()
+      M.close()
+      opts.on_action(action_tuple)
+    end, { buffer = state.bufnr, nowait = true, silent = true })
+    table.insert(state.keymaps, key)
+  end
+
+  if plugin_opts.close.key then
+    vim.keymap.set("n", plugin_opts.close.key, M.close, { buffer = state.bufnr, nowait = true, silent = true })
+    table.insert(state.keymaps, plugin_opts.close.key)
+  end
+
   vim.defer_fn(function ()
     if not M.is_open() then
       return
