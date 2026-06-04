@@ -1,0 +1,149 @@
+*nui-diagnostic.nvim* Diagnostic popup and code actions powered by nui.nvim
+
+===============================================================================
+CONTENTS                                             *nui-diagnostic-contents*
+
+1. Introduction                                      |nui-diagnostic-introduction|
+2. Requirements                                      |nui-diagnostic-requirements|
+3. Setup                                             |nui-diagnostic-setup|
+4. Commands                                          |nui-diagnostic-commands|
+5. API                                               |nui-diagnostic-api|
+6. Configuration                                     |nui-diagnostic-configuration|
+7. Migration                                         |nui-diagnostic-migration|
+
+===============================================================================
+INTRODUCTION                                      *nui-diagnostic-introduction*
+
+nui-diagnostic.nvim jumps between diagnostics and displays the current
+line diagnostics together with available LSP code actions in floating popups.
+
+===============================================================================
+REQUIREMENTS                                      *nui-diagnostic-requirements*
+
+- Neovim 0.10+
+- nui.nvim
+- LSP diagnostics/code actions for full functionality
+
+===============================================================================
+SETUP                                                   *nui-diagnostic-setup*
+
+Minimal setup: >lua
+
+  require("nui-diagnostic").setup()
+
+Manual keymaps: >lua
+
+  vim.keymap.set("n", "]d", function()
+    require("nui-diagnostic").next()
+  end)
+
+  vim.keymap.set("n", "[d", function()
+    require("nui-diagnostic").prev()
+  end)
+
+  vim.keymap.set("n", "]e", function()
+    require("nui-diagnostic").next({ severity = "ERROR" })
+  end)
+
+  vim.keymap.set("n", "[e", function()
+    require("nui-diagnostic").prev({ severity = "ERROR" })
+  end)
+<
+
+===============================================================================
+COMMANDS                                             *nui-diagnostic-commands*
+
+:NuiDiagnosticNext [severity]                         *:NuiDiagnosticNext*
+    Jump to the next diagnostic and open the popup.
+
+:NuiDiagnosticPrev [severity]                         *:NuiDiagnosticPrev*
+    Jump to the previous diagnostic and open the popup.
+
+:NuiDiagnosticOpen [severity]                         *:NuiDiagnosticOpen*
+    Open the popup for diagnostics at the current cursor line.
+
+:NuiDiagnosticClose                                  *:NuiDiagnosticClose*
+    Close active popups.
+
+Severity can be: error, warn, info, hint.
+
+===============================================================================
+API                                                       *nui-diagnostic-api*
+
+setup({opts})                                           *nui-diagnostic.setup()*
+    Configure the plugin.
+
+next({opts})                                             *nui-diagnostic.next()*
+    Jump forward and open popups.
+
+prev({opts})                                             *nui-diagnostic.prev()*
+    Jump backward and open popups.
+
+open({opts})                                             *nui-diagnostic.open()*
+    Open popups at the current cursor line without jumping.
+
+close()                                                 *nui-diagnostic.close()*
+    Close active popups.
+
+is_open()                                            *nui-diagnostic.is_open()*
+    Return whether a popup is currently open.
+
+===============================================================================
+CONFIGURATION                                 *nui-diagnostic-configuration*
+
+Default options: >lua
+
+  require("nui-diagnostic").setup({
+    popup = {
+      width = 50,
+      max_width = 80,
+      max_height = 12,
+      border_style = "rounded",
+      position = { row = 1, col = 0 },
+      win_options = {
+        wrap = false,
+        winblend = 0,
+      },
+    },
+    diagnostics = {
+      enabled = true,
+      max_items = nil,
+      format = nil,
+    },
+    code_actions = {
+      enabled = true,
+      max_items = 9,
+      include_disabled = false,
+      kinds = nil,
+      sort = nil,
+      keys = { "1", "2", "3", "4", "5", "6", "7", "8", "9" },
+    },
+    close = {
+      key = "<Esc>",
+      events = { "CursorMoved", "InsertEnter", "BufLeave" },
+    },
+    keymaps = {
+      enabled = true,
+      next = "]d",
+      prev = "[d",
+      next_error = "]e",
+      prev_error = "[e",
+    },
+    notify = true,
+  })
+<
+
+===============================================================================
+MIGRATION                                           *nui-diagnostic-migration*
+
+The old local module name was misspelled as `nui-diagnotic`.
+
+Use this instead: >lua
+
+  require("nui-diagnostic")
+<
+
+The old module name remains available as a deprecated compatibility shim.
+
+vim:tw=78:ts=8:ft=help:norl:
+
