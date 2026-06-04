@@ -58,6 +58,14 @@ function M.setup(opts)
   return resolved
 end
 
+function M.close()
+  popup.close()
+end
+
+function M.is_open()
+  return popup.is_open()
+end
+
 function M.open(opts_or_count, severity)
   local opts = config.normalize_open_opts(opts_or_count, severity, 0)
   local plugin_opts = config.get()
