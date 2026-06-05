@@ -22,11 +22,54 @@ local function popup_width(lines, opts)
   return math.min(width, opts.popup.max_width, screen_max_width)
 end
 
-local function make_popup(lines, width, row, title, opts)
+local function popup_border_height(opts)
+  if not opts.popup.border_style or opts.popup.border_style == "none" then
+    return 0
+  end
+
+  return 2
+end
+
+local function popup_height(lines, opts)
+  return math.min(#lines, opts.popup.max_height) + popup_border_height(opts)
+end
+
+local function popup_border_offset(opts)
+  return popup_border_height(opts) > 0 and 1 or 0
+end
+
+local function popup_placement(diag_lines, code_action_lines, opts)
+  local diag_height = #diag_lines > 0 and popup_height(diag_lines, opts) or 0
+  local code_action_height = #code_action_lines > 0 and popup_height(code_action_lines, opts) or 0
+  local total_height = diag_height + code_action_height
+  local border_offset = popup_border_offset(opts)
+  local row = opts.popup.position.row
+  local lines_below = vim.api.nvim_win_get_height(0) - vim.fn.winline()
+  local below_gap = math.max(row - 1, 0)
+  local open_above = total_height > lines_below - below_gap
+
+  if not open_above then
+    return {
+      anchor = "NW",
+      diag_row = row + border_offset,
+      code_action_row = row + diag_height + border_offset
+    }
+  end
+
+  local bottom_row = -math.max(row, 1) - border_offset
+  return {
+    anchor = "SW",
+    diag_row = bottom_row - code_action_height,
+    code_action_row = bottom_row
+  }
+end
+
+local function make_popup(lines, width, row, title, opts, anchor)
   local height = math.min(#lines, opts.popup.max_height)
 
   local popup = Popup({
     relative = "cursor",
+    anchor = anchor,
     position = {
       col = opts.popup.position.col,
       row = row
@@ -137,15 +180,15 @@ function M.open(opts)
 
   local all_lines = vim.list_extend(vim.deepcopy(diag_lines), code_action_lines)
   local width = popup_width(all_lines, plugin_opts)
+  local placement = popup_placement(diag_lines, code_action_lines, plugin_opts)
 
   if #diag_lines > 0 then
-    local popup = make_popup(diag_lines, width, plugin_opts.popup.position.row, "Diagnostic ", plugin_opts)
+    local popup = make_popup(diag_lines, width, placement.diag_row, "Diagnostic ", plugin_opts, placement.anchor)
     table.insert(state.popups, popup)
   end
 
   if #code_action_lines > 0 then
-    local row = #diag_lines > 0 and plugin_opts.popup.position.row + #diag_lines + 2 or plugin_opts.popup.position.row
-    local popup = make_popup(code_action_lines, width, row, "Code actions", plugin_opts)
+    local popup = make_popup(code_action_lines, width, placement.code_action_row, "Code actions", plugin_opts, placement.anchor)
     table.insert(state.popups, popup)
   end
 
