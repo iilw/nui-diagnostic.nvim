@@ -74,6 +74,10 @@ function M.open(opts_or_count, severity)
   local lnum = vim.api.nvim_win_get_cursor(win)[1] - 1
   local diagnostics = line_diagnostics(bufnr, lnum, opts.severity)
 
+  if #diagnostics == 0 then
+    return
+  end
+
   if not plugin_opts.code_actions.enabled then
     popup.open({
       bufnr = bufnr,
@@ -81,6 +85,7 @@ function M.open(opts_or_count, severity)
       actions = {},
       on_action = function() end,
     })
+    return
   end
 
   local params = make_code_action_params(bufnr, win, lnum, opts.severity)
