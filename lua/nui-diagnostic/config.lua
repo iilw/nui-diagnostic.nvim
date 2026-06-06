@@ -97,8 +97,12 @@ function M.normalize_open_opts(opts_or_count, severity, default_count)
     }
   end
 
+  if severity ~= nil then
+    opts.severity = severity
+  end
+
   opts.count = opts.count or default_count or 1
-  opts.severity = M.resolve_severity(severity)
+  opts.severity = M.resolve_severity(opts.severity)
 
   return opts
 end
