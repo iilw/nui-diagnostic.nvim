@@ -4,6 +4,18 @@ local popup = require('nui-diagnostic.popup')
 
 local M = {}
 
+local severity_names = { "error", "warn", "info", "hint" }
+
+local function complete_severity(arg_lead)
+  return vim.tbl_filter(function (severity)
+    return vim.startswith(severity, arg_lead:lower())
+  end, severity_names)
+end
+
+local function command_severity(opts)
+  return opts.args ~= "" and opts.args or nil
+end
+
 local function line_diagnostics(bufnr, lnum, severity)
   local query = { lnum = lnum }
   if severity then
@@ -46,15 +58,46 @@ local function setup_keymaps(opts)
     M.next({ severity = "ERROR" })
   end, { desc = "Next error diagnostic with code actions"})
 
-  vim.keymap.set("n", opts.keymaps.prev, function ()
-    M.prev( { severity = "ERROR" })
+  vim.keymap.set("n", opts.keymaps.prev_error, function ()
+    M.prev({ severity = "ERROR" })
   end, { desc = "Prev error diagnostic with code actions"})
 
+end
+
+local function setup_commands()
+  vim.api.nvim_create_user_command("NuiDiagnosticNext", function (opts)
+    M.next({ severity = command_severity(opts) })
+  end, {
+    nargs = "?",
+    complete = complete_severity,
+    desc = "Jump to the next diagnostic and show code actions",
+  })
+
+  vim.api.nvim_create_user_command("NuiDiagnosticPrev", function (opts)
+    M.prev({ severity = command_severity(opts) })
+  end, {
+    nargs = "?",
+    complete = complete_severity,
+    desc = "Jump to the previous diagnostic and show code actions",
+  })
+
+  vim.api.nvim_create_user_command("NuiDiagnosticOpen", function (opts)
+    M.open({ severity = command_severity(opts) })
+  end, {
+    nargs = "?",
+    complete = complete_severity,
+    desc = "Show diagnostics and code actions at the cursor",
+  })
+
+  vim.api.nvim_create_user_command("NuiDiagnosticClose", M.close, {
+    desc = "Close active diagnostic popups",
+  })
 end
 
 function M.setup(opts)
   local resolved = config.setup(opts)
   setup_keymaps(resolved)
+  setup_commands()
   return resolved
 end
 

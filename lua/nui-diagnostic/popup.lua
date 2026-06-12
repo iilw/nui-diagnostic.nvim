@@ -166,6 +166,7 @@ function M.open(opts)
   local diagnostics = opts.diagnostics or {}
   local actions = opts.actions or {}
   local diag_lines = {}
+  state.bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
 
   if plugin_opts.diagnostics.enabled then
     diag_lines = diagnostic.lines(diagnostics, plugin_opts.diagnostics)

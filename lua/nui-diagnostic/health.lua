@@ -23,7 +23,7 @@ function M.check()
 
   local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
   if #clients > 0 then
-    vim.health.ok(string.format("$d LSP client(s) attached to current buffer", #clients))
+    vim.health.ok(string.format("%d LSP client(s) attached to current buffer", #clients))
   else
     vim.health.warn("No LSP clients attached to current buffer")
   end

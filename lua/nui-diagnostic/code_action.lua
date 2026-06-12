@@ -117,9 +117,9 @@ function M.request(bufnr, params, opts, callback)
       table.sort(action_tuples, opts.sort)
     end
 
-    if opts.max_itesm and #action_tuples > opts.max_itesm then
+    if opts.max_items and #action_tuples > opts.max_items then
       local limited = {}
-      for idx = 1, opts.max_itesm do
+      for idx = 1, opts.max_items do
         limited[idx] = action_tuples[idx]
       end
       action_tuples = limited

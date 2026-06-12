@@ -53,6 +53,8 @@ Manual keymaps: >lua
 ===============================================================================
 COMMANDS                                             *nui-diagnostic-commands*
 
+Commands are registered by |nui-diagnostic.setup()|.
+
 :NuiDiagnosticNext [severity]                         *:NuiDiagnosticNext*
     Jump to the next diagnostic and open the popup.
 
@@ -65,28 +67,45 @@ COMMANDS                                             *nui-diagnostic-commands*
 :NuiDiagnosticClose                                  *:NuiDiagnosticClose*
     Close active popups.
 
-Severity can be: error, warn, info, hint.
+The [severity] argument is optional. String aliases are case-insensitive:
+error, err, warn, warning, info, hint. Lua API calls also accept numeric
+|vim.diagnostic.severity| values.
 
 ===============================================================================
 API                                                       *nui-diagnostic-api*
 
 setup({opts})                                           *nui-diagnostic.setup()*
-    Configure the plugin.
+    Configure the plugin, register built-in keymaps when enabled, and register
+    user commands.
 
 next({opts})                                             *nui-diagnostic.next()*
-    Jump forward and open popups.
+next({count}, {severity})
+    Jump forward and open popups. {opts} may include:
+      count     Number of diagnostics to jump. Default: 1.
+      severity  Optional severity filter.
 
 prev({opts})                                             *nui-diagnostic.prev()*
-    Jump backward and open popups.
+prev({count}, {severity})
+    Jump backward and open popups. {opts} may include:
+      count     Number of diagnostics to jump. Default: 1.
+      severity  Optional severity filter.
 
 open({opts})                                             *nui-diagnostic.open()*
-    Open popups at the current cursor line without jumping.
+    Open popups at the current cursor line without jumping. {opts} may include:
+      severity  Optional severity filter.
 
 close()                                                 *nui-diagnostic.close()*
     Close active popups.
 
 is_open()                                            *nui-diagnostic.is_open()*
     Return whether a popup is currently open.
+
+Examples: >lua
+
+  require("nui-diagnostic").next({ severity = "ERROR" })
+  require("nui-diagnostic").prev(2, "warn")
+  require("nui-diagnostic").open({ severity = vim.diagnostic.severity.INFO })
+<
 
 ===============================================================================
 CONFIGURATION                                 *nui-diagnostic-configuration*
@@ -109,6 +128,12 @@ Default options: >lua
       enabled = true,
       max_items = nil,
       format = nil,
+      severity_names = {
+        [vim.diagnostic.severity.ERROR] = "ERROR",
+        [vim.diagnostic.severity.WARN] = "WARN",
+        [vim.diagnostic.severity.INFO] = "INFO",
+        [vim.diagnostic.severity.HINT] = "HINT",
+      },
     },
     code_actions = {
       enabled = true,
@@ -120,7 +145,7 @@ Default options: >lua
     },
     close = {
       key = "<Esc>",
-      events = { "CursorMoved", "InsertEnter", "BufLeave" },
+      events = { "BufLeave", "CursorMoved", "InsertEnter" },
     },
     keymaps = {
       enabled = true,
@@ -133,6 +158,43 @@ Default options: >lua
   })
 <
 
+diagnostics.enabled~
+    Show diagnostic lines in the popup.
+
+diagnostics.max_items~
+    Maximum number of diagnostic lines to display. nil means no limit.
+
+diagnostics.format~
+    Optional function called with a |vim.Diagnostic|. Return the line to show.
+
+diagnostics.severity_names~
+    Map numeric |vim.diagnostic.severity| values to labels shown in the popup.
+
+code_actions.enabled~
+    Request and show LSP code actions in a second popup.
+
+code_actions.max_items~
+    Maximum number of code actions to display.
+
+code_actions.include_disabled~
+    Show disabled LSP actions. Disabled actions are hidden by default.
+
+code_actions.kinds~
+    Optional list of action kinds or kind prefixes to include, for example
+    { "quickfix", "refactor" }.
+
+code_actions.sort~
+    Optional comparator for sorting |NuiDiagnosticActionTuple| entries.
+
+code_actions.keys~
+    Keys used to execute visible actions. They are assigned in display order.
+
+close.key~
+    Key used to close active popups.
+
+close.events~
+    Autocommand events that close active popups.
+
 ===============================================================================
 MIGRATION                                           *nui-diagnostic-migration*
 
@@ -143,7 +205,4 @@ Use this instead: >lua
   require("nui-diagnostic")
 <
 
-The old module name remains available as a deprecated compatibility shim.
-
 vim:tw=78:ts=8:ft=help:norl:
-
