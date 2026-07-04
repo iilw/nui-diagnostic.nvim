@@ -177,6 +177,16 @@ Notes:
 :checkhealth nui-diagnostic
 ```
 
+## Development
+
+Run tests with [`plenary.nvim`](https://github.com/nvim-lua/plenary.nvim):
+
+```sh
+PLENARY_PATH=/path/to/plenary.nvim make test
+```
+
+If `plenary.nvim` is cloned next to this repository as `../plenary.nvim`, `make test` works without `PLENARY_PATH`.
+
 ## License
 
 MIT
