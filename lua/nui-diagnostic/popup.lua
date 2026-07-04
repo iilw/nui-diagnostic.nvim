@@ -95,11 +95,17 @@ local function make_popup(lines, width, row, title, opts, anchor)
 end
 
 ---@param actions NuiDiagnosticActionTuple[]
-local function action_lines(actions)
+---@param keys string[]
+local function action_lines(actions, keys)
   local lines = {}
 
   for idx, action_tuple in ipairs(actions) do
-    table.insert(lines, string.format(" [%d] %s", idx, action_tuple.action.title or "Untitled action"))
+    local key = keys[idx]
+    if not key then
+      break
+    end
+
+    table.insert(lines, string.format(" [%s] %s", key, action_tuple.action.title or "Untitled action"))
   end
 
   if #lines == 0 then
@@ -174,7 +180,7 @@ function M.open(opts)
 
   local code_action_lines = {}
   if plugin_opts.code_actions.enabled then
-    code_action_lines = action_lines(actions)
+    code_action_lines = action_lines(actions, plugin_opts.code_actions.keys or {})
   end
 
   if #diag_lines == 0 and #code_action_lines == 0 then return end
